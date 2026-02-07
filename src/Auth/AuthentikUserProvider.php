@@ -49,7 +49,7 @@ class AuthentikUserProvider implements UserProvider
         if (! $user->exists) {
             $user->{$authentikUser->getAuthIdentifierName()} = $authentikUser->getAuthIdentifier();
         }
-        $user->fill($attributes)->save();
+        $user->fill($authentikUser->toArray())->save();
 
         return $user;
     }
