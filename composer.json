@@ -1,0 +1,46 @@
+{
+  "name": "freebuu/authentik-forward-auth",
+  "type": "package",
+  "version": "0.1.0",
+  "description": "Authentik forward auth package for Laravel",
+  "keywords": [
+    "Laravel",
+    "Authentik",
+    "Authentik Forward Auth"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Maksim",
+      "email": "freebuu.dev@gmail.com",
+      "role": "Maintainer"
+    }
+  ],
+  "require": {
+    "php": "^8.1",
+    "illuminate/support": "^9.0 | ^10.0 | ^11.0 | ^12.0",
+    "illuminate/auth": "^9.0 | ^10.0 | ^11.0 | ^12.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^8.0 | ^9.0 | ^10.0",
+    "phpunit/phpunit": "^12.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "FreeBuu\\ForwardAuth\\": "src"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "FreeBuu\\ForwardAuth\\ForwardAuthServiceProvider"
+      ]
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "stable"
+}
