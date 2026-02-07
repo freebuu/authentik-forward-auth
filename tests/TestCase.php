@@ -2,7 +2,4 @@
 
 namespace Tests;
 
-class TestCase extends \Orchestra\Testbench\TestCase
-{
-
-}
+class TestCase extends \Orchestra\Testbench\TestCase {}
