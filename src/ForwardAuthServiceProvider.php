@@ -19,6 +19,7 @@ class ForwardAuthServiceProvider extends ServiceProvider
         $this->app['auth']->extend(config('forward-auth.guard-name'), function ($app, string $name, array $config) {
             $guard = new AuthentikGuard(
                 $app['request'],
+                $config['header-prefix'] ?? $app['config']['forward-auth.header-prefix'],
                 $app['auth']->createUserProvider($config['provider']),
             );
             $app->refresh('request', $guard, 'setRequest');
@@ -33,10 +34,10 @@ class ForwardAuthServiceProvider extends ServiceProvider
 
         Auth::provider('eloquent_authentik', function ($app, $config) {
             return new AuthentikUserProvider(
-                $config['identifier-name'] ?? $app['config']['forward-auth.identifier-name'],
-                $config['mapper'] ?? $app['config']['forward-auth.mapper'],
-                $config['validation'] ?? $app['config']['forward-auth.validation'],
-                $config['create-users'] ?? $app['config']['forward-auth.create-users'],
+                $config['identifier-name'] ?? $app['config']['forward-auth.defaults.identifier-name'],
+                $config['mapper'] ?? $app['config']['forward-auth.defaults.mapper'],
+                $config['validation'] ?? $app['config']['forward-auth.defaults.validation'],
+                $config['create-users'] ?? $app['config']['forward-auth.defaults.create-users'],
                 $config['model'] ?? null
             );
         });

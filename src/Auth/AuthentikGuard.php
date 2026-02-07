@@ -16,12 +16,15 @@ final class AuthentikGuard implements Guard
     protected Request $request;
 
     protected bool $attempted = false;
+    protected string $headerPrefix;
 
     public function __construct(
         Request $request,
+        string $headerPrefix,
         UserProvider $provider,
     ) {
         $this->request = $request;
+        $this->headerPrefix = $headerPrefix;
         $this->setProvider($provider);
     }
 
@@ -56,16 +59,11 @@ final class AuthentikGuard implements Guard
         return $this;
     }
 
-    private function credentialsFromRequest()
+    public function credentialsFromRequest()
     {
-        $prefix = config('forward-auth.header-prefix');
-        if (! $prefix) {
-            return [];
-        }
-
         return collect($this->request->headers->all())
-            ->filter(fn ($value, $key) => str_starts_with($key, $prefix))
-            ->mapWithKeys(fn ($value, $key) => [str_replace($prefix, '', $key) => $value])
+            ->filter(fn ($value, $key) => str_starts_with($key, $this->headerPrefix))
+            ->mapWithKeys(fn ($value, $key) => [str_replace($this->headerPrefix, '', $key) => $value])
             ->toArray();
     }
 }
