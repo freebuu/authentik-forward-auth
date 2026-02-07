@@ -6,7 +6,7 @@ return [
     'defaults' => [
         'create-users' => true,
         'identifier-name' => 'uid',
-        'mapper' => \FreeBuu\ForwardAuth\Entity\DefaultPropertyMapper::class,
+        'mapper' => \FreeBuu\ForwardAuth\Entity\PropertyMapper::class,
         'validation' => [],
     ],
 ];

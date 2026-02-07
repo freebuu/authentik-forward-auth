@@ -2,10 +2,15 @@
 
 namespace FreeBuu\ForwardAuth\Entity;
 
-class DefaultPropertyMapper
+class PropertyMapper
 {
+    public static ?\Closure $customMapper;
+
     public function __invoke(array $data): array
     {
+        if(self::$customMapper) {
+            return call_user_func(self::$customMapper, $data);
+        }
         $attributes = [];
         foreach ($data as $key => $value) {
             $attributes[$key] = (string) $value;

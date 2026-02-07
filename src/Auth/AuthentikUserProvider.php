@@ -3,7 +3,7 @@
 namespace FreeBuu\ForwardAuth\Auth;
 
 use FreeBuu\ForwardAuth\Entity\AuthentikUser;
-use FreeBuu\ForwardAuth\Entity\DefaultPropertyMapper;
+use FreeBuu\ForwardAuth\Entity\PropertyMapper;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Database\Eloquent\Model;
@@ -22,7 +22,7 @@ class AuthentikUserProvider implements UserProvider
     public function retrieveByCredentials(array $credentials)
     {
         $attributes = is_array($this->mapper)
-            ? DefaultPropertyMapper::byArray($this->mapper, $credentials)
+            ? PropertyMapper::byArray($this->mapper, $credentials)
             : call_user_func($this->mapper, $credentials);
         if (! empty($this->validationRules)) {
             $validator = Validator::make($attributes, $this->validationRules);
