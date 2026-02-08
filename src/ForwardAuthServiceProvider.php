@@ -4,6 +4,7 @@ namespace FreeBuu\ForwardAuth;
 
 use FreeBuu\ForwardAuth\Auth\AuthentikGuard;
 use FreeBuu\ForwardAuth\Auth\AuthentikUserProvider;
+use FreeBuu\ForwardAuth\Auth\UserModelRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
@@ -38,7 +39,7 @@ class ForwardAuthServiceProvider extends ServiceProvider
                 $config['mapper'] ?? $app['config']['forward-auth.defaults.mapper'],
                 $config['validation'] ?? $app['config']['forward-auth.defaults.validation'],
                 $config['create-users'] ?? $app['config']['forward-auth.defaults.create-users'],
-                $config['model'] ?? null
+                new UserModelRepository($config['model'] ?? null)
             );
         });
     }

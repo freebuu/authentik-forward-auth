@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use FreeBuu\ForwardAuth\Auth\AuthentikUserProvider;
+use FreeBuu\ForwardAuth\Auth\UserModelRepository;
 use FreeBuu\ForwardAuth\Entity\PropertyMapper;
 use Tests\TestCase;
 
@@ -65,7 +66,7 @@ class AuthentikUserProviderTest extends TestCase
             $this->mapper,
             $this->validationRules,
             $this->create,
-            $this->model
+            new UserModelRepository($this->model)
         );
     }
 }

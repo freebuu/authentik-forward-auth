@@ -16,7 +16,7 @@ class AuthentikUserProvider implements UserProvider
         protected array|string $mapper,
         protected array $validationRules,
         protected bool $create = true,
-        protected string|Model|null $model = null,
+        protected UserModelRepository $modelRepository,
     ) {}
 
     public function retrieveByCredentials(array $credentials)
@@ -32,25 +32,18 @@ class AuthentikUserProvider implements UserProvider
             }
         }
         $authentikUser = new AuthentikUser($attributes, $this->authIdentifierName);
-        if (! $model = $this->makeModel()) {
+        if (! $this->modelRepository->isModelSet()) {
             return $authentikUser;
         }
         if (empty($authentikUser->getAuthIdentifier())) {
             return null;
         }
-        $user = $model->newModelQuery()->where(
-            $authentikUser->getAuthIdentifierName(),
-            $authentikUser->getAuthIdentifier()
-        )->first();
-        if (is_null($user) && $this->create === false) {
+        $user = $this->modelRepository->findFor($authentikUser);
+        if (! $user->exists && ! $this->create) {
             return null;
         }
         /** @var (Model&Authenticatable) $user */
-        $user = $user ?? $model;
-        if (! $user->exists) {
-            $user->{$authentikUser->getAuthIdentifierName()} = $authentikUser->getAuthIdentifier();
-        }
-        $user->fill($authentikUser->toArray())->save();
+        $user = $this->modelRepository->sync($authentikUser, $user);
 
         return $user;
     }
@@ -75,22 +68,6 @@ class AuthentikUserProvider implements UserProvider
     public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false): bool
     {
         return false;
-    }
-
-    private function makeModel(): ?Model
-    {
-        if (! $this->model) {
-            return null;
-        }elseif (is_object($this->model)) {
-            return $this->model;
-        }
-
-        return $this->model = new $this->model;
-    }
-
-    public function setModel(string|Model $model): void
-    {
-        $this->model = $model;
     }
 
     private function processWithCallback(array $credentials): array
