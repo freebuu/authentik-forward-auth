@@ -11,25 +11,22 @@ class UserModelRepository
 
     public function __construct(
         protected ?string $model
-    ) {
-    }
+    ) {}
 
     public function findFor(AuthentikUser $authentikUser): Model
     {
         return $this->makeModel()?->newModelQuery()->where(
             $authentikUser->getAuthIdentifierName(),
             $authentikUser->getAuthIdentifier()
-        )->first() ?? $this->resolvedModel;
+        )->first() ?? $this->makeModel();
     }
 
-    public function sync(AuthentikUser $authentikUser, Model $user): Model
+    public function sync(AuthentikUser $authentikUser, Model $user): void
     {
         if (! $user->exists) {
             $user->{$authentikUser->getAuthIdentifierName()} = $authentikUser->getAuthIdentifier();
         }
         $user->fill($authentikUser->toArray())->save();
-
-        return $user;
     }
 
     public function isModelSet(): bool
@@ -39,9 +36,9 @@ class UserModelRepository
 
     private function makeModel(): ?Model
     {
-        try{
+        try {
             return $this->resolvedModel ??= new $this->model;
-        }catch (\Error){
+        } catch (\Error) {
             return null;
         }
     }

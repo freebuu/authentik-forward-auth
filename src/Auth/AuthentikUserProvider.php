@@ -5,7 +5,6 @@ namespace FreeBuu\ForwardAuth\Auth;
 use FreeBuu\ForwardAuth\Entity\AuthentikUser;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,35 +14,24 @@ class AuthentikUserProvider implements UserProvider
         protected string $authIdentifierName,
         protected array|string $mapper,
         protected array $validationRules,
-        protected bool $create = true,
+        protected bool $create,
         protected UserModelRepository $modelRepository,
     ) {}
 
     public function retrieveByCredentials(array $credentials)
     {
-        $attributes = $this->processWithCallback($credentials);
-        if (empty($attributes)) {
+        if (empty($attributes = $this->validateAttributes($credentials))) {
             return null;
-        }
-        if (! empty($this->validationRules)) {
-            $validator = Validator::make($attributes, $this->validationRules);
-            if ($validator->fails()) {
-                return null;
-            }
         }
         $authentikUser = new AuthentikUser($attributes, $this->authIdentifierName);
         if (! $this->modelRepository->isModelSet()) {
             return $authentikUser;
         }
-        if (empty($authentikUser->getAuthIdentifier())) {
-            return null;
-        }
         $user = $this->modelRepository->findFor($authentikUser);
         if (! $user->exists && ! $this->create) {
             return null;
         }
-        /** @var (Model&Authenticatable) $user */
-        $user = $this->modelRepository->sync($authentikUser, $user);
+        $this->modelRepository->sync($authentikUser, $user);
 
         return $user;
     }
@@ -68,6 +56,23 @@ class AuthentikUserProvider implements UserProvider
     public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false): bool
     {
         return false;
+    }
+
+    private function validateAttributes(array $credentials): array
+    {
+        $attributes = $this->processWithCallback($credentials);
+        if (empty($attributes)) {
+            return [];
+        }
+        $validator = Validator::make(
+            $attributes,
+            array_merge([$this->authIdentifierName => 'required'], $this->validationRules)
+        );
+        if ($validator->fails()) {
+            return [];
+        }
+
+        return $attributes;
     }
 
     private function processWithCallback(array $credentials): array
