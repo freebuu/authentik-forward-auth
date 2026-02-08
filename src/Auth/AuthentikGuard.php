@@ -16,6 +16,7 @@ final class AuthentikGuard implements Guard
     protected Request $request;
 
     protected bool $attempted = false;
+
     protected string $headerPrefix;
 
     public function __construct(
@@ -43,6 +44,7 @@ final class AuthentikGuard implements Guard
     public function id()
     {
         $user = $this->attempted ? $this->user : $this->user();
+        $this->attempted = true;
 
         return $user?->getAuthIdentifier();
     }
@@ -52,18 +54,16 @@ final class AuthentikGuard implements Guard
         $this->mustNotUse(__METHOD__);
     }
 
-    public function setRequest(Request $request): static
+    public function setRequest(Request $request): void
     {
         $this->request = $request;
-
-        return $this;
     }
 
     public function credentialsFromRequest()
     {
         return collect($this->request->headers->all())
             ->filter(fn ($value, $key) => str_starts_with($key, $this->headerPrefix))
-            ->mapWithKeys(fn ($value, $key) => [str_replace($this->headerPrefix, '', $key) => $value])
+            ->mapWithKeys(fn ($value, $key) => [str_replace($this->headerPrefix, '', $key) => $value[0] ?? null])
             ->toArray();
     }
 }

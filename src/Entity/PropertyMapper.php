@@ -2,13 +2,13 @@
 
 namespace FreeBuu\ForwardAuth\Entity;
 
-class PropertyMapper
+final class PropertyMapper
 {
     public static ?\Closure $customMapper;
 
     public function __invoke(array $data): array
     {
-        if(self::$customMapper) {
+        if (self::$customMapper) {
             return call_user_func(self::$customMapper, $data);
         }
         $attributes = [];
@@ -20,12 +20,5 @@ class PropertyMapper
         }
 
         return $attributes;
-    }
-
-    public static function byArray(array $mapper, array $data): array
-    {
-        return array_map(function ($headerField) use ($data) {
-            return $data[$headerField] ?? null;
-        }, $mapper);
     }
 }

@@ -3,27 +3,28 @@
 namespace FreeBuu\ForwardAuth\Auth;
 
 use FreeBuu\ForwardAuth\Entity\AuthentikUser;
-use FreeBuu\ForwardAuth\Entity\PropertyMapper;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 
 class AuthentikUserProvider implements UserProvider
 {
     public function __construct(
         protected string $authIdentifierName,
-        protected array|\Closure $mapper,
+        protected array|string $mapper,
         protected array $validationRules,
         protected bool $create = true,
-        protected ?string $model = null,
+        protected string|Model|null $model = null,
     ) {}
 
     public function retrieveByCredentials(array $credentials)
     {
-        $attributes = is_array($this->mapper)
-            ? PropertyMapper::byArray($this->mapper, $credentials)
-            : call_user_func($this->mapper, $credentials);
+        $attributes = $this->processWithCallback($credentials);
+        if (empty($attributes)) {
+            return null;
+        }
         if (! empty($this->validationRules)) {
             $validator = Validator::make($attributes, $this->validationRules);
             if ($validator->fails()) {
@@ -80,8 +81,33 @@ class AuthentikUserProvider implements UserProvider
     {
         if (! $this->model) {
             return null;
+        }elseif (is_object($this->model)) {
+            return $this->model;
         }
 
-        return new $this->model;
+        return $this->model = new $this->model;
+    }
+
+    public function setModel(string|Model $model): void
+    {
+        $this->model = $model;
+    }
+
+    private function processWithCallback(array $credentials): array
+    {
+        if (is_string($this->mapper)) {
+            $callback = App::make($this->mapper);
+        } else {
+            $callback = function ($credentials) {
+                return array_map(function ($headerField) use ($credentials) {
+                    return $credentials[$headerField] ?? null;
+                }, $this->mapper);
+            };
+        }
+        if (! is_callable($callback)) {
+            return [];
+        }
+
+        return $callback($credentials);
     }
 }
