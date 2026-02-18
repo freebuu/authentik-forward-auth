@@ -4,7 +4,7 @@ namespace FreeBuu\ForwardAuth\Entity;
 
 final class PropertyMapper
 {
-    public static ?\Closure $customMapper;
+    public static ?\Closure $customMapper = null;
 
     public function __invoke(array $data): array
     {

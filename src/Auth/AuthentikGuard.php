@@ -25,7 +25,7 @@ final class AuthentikGuard implements Guard
         UserProvider $provider,
     ) {
         $this->request = $request;
-        $this->headerPrefix = $headerPrefix;
+        $this->headerPrefix = strtolower($headerPrefix);
         $this->setProvider($provider);
     }
 
@@ -62,8 +62,8 @@ final class AuthentikGuard implements Guard
     public function credentialsFromRequest()
     {
         return collect($this->request->headers->all())
-            ->filter(fn ($value, $key) => str_starts_with($key, $this->headerPrefix))
-            ->mapWithKeys(fn ($value, $key) => [str_replace($this->headerPrefix, '', $key) => $value[0] ?? null])
+            ->filter(fn ($value, $key) => str_starts_with(strtolower($key), $this->headerPrefix))
+            ->mapWithKeys(fn ($value, $key) => [str_replace($this->headerPrefix, '', strtolower($key)) => $value[0] ?? null])
             ->toArray();
     }
 }

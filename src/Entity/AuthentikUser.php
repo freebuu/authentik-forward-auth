@@ -47,4 +47,9 @@ final class AuthentikUser extends Fluent implements Authenticatable
     {
         return $this->mustNotUse(__METHOD__);
     }
+
+    public function getAuthPasswordName()
+    {
+        return $this->mustNotUse(__METHOD__);
+    }
 }
