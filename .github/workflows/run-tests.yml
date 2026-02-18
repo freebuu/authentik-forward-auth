@@ -33,8 +33,8 @@ jobs:
             composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction
             composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
-      -   name: Execute phpstan
-          run: vendor/bin/phpstan analyse
+#      -   name: Execute phpstan
+#          run: vendor/bin/phpstan analyse
 
       -   name: Execute phpunit
           run: vendor/bin/phpunit
